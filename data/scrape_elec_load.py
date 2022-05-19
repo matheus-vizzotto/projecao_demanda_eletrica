@@ -10,6 +10,7 @@ for ano in range(ano_inicio, ano_fim + 1):
     df = pd.concat([df, df2])
 df.columns = ["id_reg", "desc_reg", "date", "load_mwmed"]
 df.loc[:, "date"] = pd.to_datetime(df.loc[:, "date"], format = '%Y-%m-%d')
+df.sort_values(by = "date", inplace = True)
 df = df.iloc[ :-4 , : ] # t - 1 fica com NaN
 
 df.to_csv("daily_load.csv", index = False)
