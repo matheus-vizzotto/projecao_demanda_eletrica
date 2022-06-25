@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 import requests
+import numpy as np
 import pandas as pd
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_percentage_error
+from math import sqrt
 
 
 def download_carga(ano_inicio: int, ano_fim: int):
@@ -25,8 +31,46 @@ def download_carga(ano_inicio: int, ano_fim: int):
     
     else:
        print("Ano não disponível.")
-       
-       
+
+
+def load_data():
+    """
+    Função para ler e transformar os dados já presentes no diretório especificado
+    """
+    path = "../data/daily_load.csv"
+    df_load = pd.read_csv(path, parse_dates = ["date"])
+    df_load2 = df_load[df_load["id_reg"] == "S"]           # região sul
+    df_load3 = df_load2[df_load2["date"] <= '2022-05-11']  # data de corte
+    df_load3["load_mwmed"].interpolate(inplace = True)  # interpolação
+    df_load4 = df_load3[["date", "load_mwmed"]].set_index("date")
+    return df_load4
+
+def get_measures(forecast, test):
+    """
+    Função para obter medidas de acurária a partir dos dados de projeção e teste
+    """
+    errors = [(test.iloc[i][0] - forecast.iloc[i])**2 for i in range(len(test))]
+    mae = mean_absolute_error(test, forecast)
+    mse = mean_squared_error(test, forecast)
+    rmse = sqrt(mse)
+    mape = mean_absolute_percentage_error(test, forecast)
+    # smape
+    a = np.reshape(test.values, (-1,))
+    b = np.reshape(forecast.values, (-1,))
+    smape = np.mean(100*2.0 * np.abs(a - b) / (np.abs(a) + np.abs(b))).item()
+    # dicionário com as medidas de erro
+    measures = { "erro": sum(errors),
+                 "mae": mae,
+                 "mse": mse,
+                 "rmse": rmse,
+                 "mape": mape,
+                 "smape": smape
+                }
+    # arredondamento
+    for key, item in measures.items():
+        measures[key] = round(measures[key], 2)
+    return measures
+  
 def create_features(df, datetime_column):
     """ Função para criar as variáveis de calendário com base na coluna de data selecionada. """
     
