@@ -41,7 +41,6 @@ def load_data():
     df_load = pd.read_csv(path, parse_dates = ["date"])
     df_load2 = df_load[df_load["id_reg"] == "S"]           # região sul
     df_load3 = df_load2[df_load2["date"] <= '2022-05-11']  # data de corte
-    df_load3["load_mwmed"].interpolate(inplace = True)  # interpolação
     df_load4 = df_load3[["date", "load_mwmed"]].set_index("date")
     return df_load4
 

@@ -21,12 +21,14 @@ plt.style.use('fivethirtyeight')
 
 # carrega dados
 df = load_data()
+df["load_mwmed"].interpolate(inplace = True)  # preenche valores vazios
 df = boxcox(df, 2.5)
 
 # split treino-teste
 train, test = df.iloc[:-30], df.iloc[-30:] 
 
-# auto-arima (Best model boxcox:  ARIMA(4,1,2)(1,0,1)[7] intercept)
+# auto-arima 
+# (Best model boxcox:  ARIMA(4,1,2)(1,0,1)[7] intercept)
 SARIMA_model = pm.auto_arima(train, 
                             start_p=1, 
                             start_q=1,
@@ -39,11 +41,15 @@ SARIMA_model = pm.auto_arima(train,
                             #D=None# let model determine 'd'
                             max_D = 1,
                             seasonal=True, # No Seasonality for standard ARIMA
-                            trace=True, #logs 
+                            trace=False, #logs 
                             error_action='warn', #shows errors ('ignore' silences these)
                             suppress_warnings=True,
                             stepwise=True,
                             information_criterion='bic')
+
+
+# parâmetros
+print(SARIMA_model.summary())
 
 # diagnósticos dos resíduos
 SARIMA_model.plot_diagnostics(figsize=(15,5))
@@ -52,15 +58,21 @@ plt.show()
 
 # forecast
 fc = pd.Series(SARIMA_model.predict(n_periods=30)) # transforma forecast em Series
-fc = inv_boxcox(fc, 2.5) # volta a escala para o original
 fc.index = test.index # deixa o forecast e o teste com os mesmo índices para plotar
-medidas_fc = get_measures(fc, test) # medidas de acurácia
-#print("Medidas de acurácia:\n", medidas_fc)
-print(pd.DataFrame(medidas_fc))
 
+# medidas de acurácia
+fc = inv_boxcox(fc, 2.5) # volta a escala para o original
+test = inv_boxcox(test, 2.5)
+medidas_fc = get_measures(fc, test) 
+
+
+df_medidas_fc = pd.DataFrame([medidas_fc])
+print(df_medidas_fc)
+
+# visualização do forecast
 plt.figure(figsize = (15, 5))
 plt.plot(fc, c = "red", label = "forecast")
-plt.plot(test, c = "blue", label = "actual")
+plt.plot(test, 2.5, c = "blue", label = "actual")
 plt.legend()
 plt.show()
 
