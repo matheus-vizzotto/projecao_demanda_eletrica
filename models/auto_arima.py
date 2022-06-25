@@ -66,6 +66,7 @@ test = inv_boxcox(test, 2.5)
 medidas_fc = get_measures(fc, test) 
 df_medidas_fc = pd.DataFrame([medidas_fc])
 print(df_medidas_fc)
+fc.to_csv("validation/auto_arima.csv")
 
 # visualização do forecast
 plt.figure(figsize = (15, 5))
