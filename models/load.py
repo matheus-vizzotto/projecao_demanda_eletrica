@@ -48,7 +48,12 @@ def get_measures(forecast, test):
     """
     Função para obter medidas de acurária a partir dos dados de projeção e teste
     """
-    errors = [(test.iloc[i][0] - forecast.iloc[i])**2 for i in range(len(test))]
+    forecast.reset_index(drop = True, inplace = True)
+    test.reset_index(drop = True, inplace = True)
+    if isinstance(forecast, pd.Series) and isinstance(test, pd.Series):
+        errors = [(test.iloc[i] - forecast.iloc[i])**2 for i in range(len(test))]
+    else:
+        errors = [(test.iloc[i][0] - forecast.iloc[i])**2 for i in range(len(test))]
     mae = mean_absolute_error(test, forecast)
     mse = mean_squared_error(test, forecast)
     rmse = sqrt(mse)
@@ -104,11 +109,13 @@ def series_to_supervised(data, n_in = 1, n_out = 1, dropnan = True):
     return agg
 
 def train_test_split(data, n_test):
-    return data[:-n_test, :], data[-n_test:, :]
-
+    if isinstance(data, pd.DataFrame):
+        train, test = data.iloc[:-n_test, :], data.iloc[-n_test:, :]
+    elif isinstance(data, np.ndarray):
+        train, test = data[:-n_test, :], data[-n_test:, :]
+    return train, test
 def create_features(df, datetime_column):
     """ Função para criar as variáveis de calendário com base na coluna de data selecionada. """
-    
     x = df[datetime_column]
     df["ano"] = x.dt.year
     df["trimestre"] = x.dt.quarter         

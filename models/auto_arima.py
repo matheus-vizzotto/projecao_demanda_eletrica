@@ -8,6 +8,7 @@ Created on Sat Jun 25 00:20:41 2022
 import pandas as pd
 #import numpy as np
 from load import load_data
+from load import train_test_split
 from scipy.special import boxcox, inv_boxcox
 import pmdarima as pm
 from load import get_measures
@@ -25,7 +26,9 @@ df["load_mwmed"].interpolate(method = "linear", inplace = True)  # preenche valo
 df = boxcox(df, 2.5)
 
 # split treino-teste
-train, test = df.iloc[:-30], df.iloc[-30:] 
+n_test = 31
+train, test = train_test_split(df, n_test)
+
 
 # auto-arima 
 # (Best model boxcox:  ARIMA(4,1,2)(1,0,1)[7] intercept)
@@ -41,7 +44,7 @@ SARIMA_model = pm.auto_arima(train,
                             max_D = 1,
                             seasonal=True, 
                             m=7, # frequency of series (if m==1, seasonal is set to FALSE automatically)
-                            trace=False, #logs 
+                            trace=True, #logs 
                             error_action='warn', #shows errors ('ignore' silences these)
                             suppress_warnings=True,
                             stepwise=True,
@@ -57,7 +60,7 @@ plt.subplots_adjust(hspace= 0.7)
 plt.show()
 
 # forecast
-fc = pd.Series(SARIMA_model.predict(n_periods=30)) # transforma forecast em Series
+fc = pd.Series(SARIMA_model.predict(n_periods=n_test)) # transforma forecast em Series
 fc.index = test.index # deixa o forecast e o teste com os mesmo índices para plotar
 
 # medidas de acurácia
@@ -66,7 +69,9 @@ test = inv_boxcox(test, 2.5)
 medidas_fc = get_measures(fc, test) 
 df_medidas_fc = pd.DataFrame([medidas_fc])
 print(df_medidas_fc)
-fc.to_csv("validation/auto_arima.csv")
+
+# write forecst csv
+fc.to_csv("validation/auto_arima_fc.csv")
 
 # visualização do forecast
 plt.figure(figsize = (15, 5))

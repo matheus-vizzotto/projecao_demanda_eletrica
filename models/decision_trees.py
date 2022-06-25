@@ -14,7 +14,6 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
-from load import get_measures
 
 import matplotlib.pyplot as plt
 import warnings 
@@ -41,7 +40,7 @@ def decision_tree_forecast(train, testX):
     return yhat[0]
 
 # walk-forward validation for univariate data
-def walk_forward_validation(data, n_test, model):
+def walk_forward_validation(data, n_test):
     predictions = list()
     # split dataset
     train, test = train_test_split(data, n_test)
@@ -74,13 +73,16 @@ lag = 60
 data = series_to_supervised(values, n_in = lag)
 
 # evaluate
-n_test = 5
-mae, mape, rmse, y, yhat = walk_forward_validation(data.values, n_test, 'decision_tree')
+n_test = 31
+mae, mape, rmse, y, yhat = walk_forward_validation(data.values, n_test)
 print('MAE: %.3f' % mae)
 print('MAPE: %.3f' % mape)
 print('RMSE: %.3f' % rmse)
-fc = pd.DataFrame(list(zip(df.index[:-n_test], yhat)), columns = ["date", "forecast"])
 
+# write forecst csv
+fc = pd.DataFrame(list(zip(df.index[-n_test:], yhat)), columns = ["date", "forecast"])
+fc.set_index("date", inplace = True)
+fc.to_csv("validation/decision_trees_fc.csv")
 
 # plot expected vs predicted
 plt.plot(y, label = 'Expected')
