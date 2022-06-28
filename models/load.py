@@ -114,6 +114,7 @@ def train_test_split(data, n_test):
     elif isinstance(data, np.ndarray):
         train, test = data[:-n_test, :], data[-n_test:, :]
     return train, test
+    
 def create_features(df, datetime_column):
     """ Função para criar as variáveis de calendário com base na coluna de data selecionada. """
     x = df[datetime_column]

@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 import requests
 import pandas as pd
-
+import numpy as np
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_percentage_error
 
 def download_carga(ano_inicio: int, ano_fim: int):
     """ Função para fazer download dos dados de carga elétrica por subsistema no período de referência em base diária."""
@@ -26,7 +30,24 @@ def download_carga(ano_inicio: int, ano_fim: int):
     else:
        print("Ano não disponível.")
        
-       
+def load_data():
+    """
+    Função para ler e transformar os dados já presentes no diretório especificado
+    """
+    path = "../data/daily_load.csv"
+    df_load = pd.read_csv(path, parse_dates = ["date"])
+    df_load2 = df_load[df_load["id_reg"] == "S"]           # região sul
+    df_load3 = df_load2[df_load2["date"] <= '2022-05-31']  # data de corte
+    df_load4 = df_load3[["date", "load_mwmed"]].set_index("date")
+    return df_load4
+
+def train_test_split(data, n_test):
+    if isinstance(data, pd.DataFrame):
+        train, test = data.iloc[:-n_test, :], data.iloc[-n_test:, :]
+    elif isinstance(data, np.ndarray):
+        train, test = data[:-n_test, :], data[-n_test:, :]
+    return train, test
+
 def create_features(df, datetime_column):
     """ Função para criar as variáveis de calendário com base na coluna de data selecionada. """
     
@@ -53,5 +74,35 @@ def create_future(start, t, cal_vars = False):
         df = create_features(df, 't')
     elif cal_vars == False:
         pass
-    
     return df
+
+def get_measures(forecast, test):
+    """
+    Função para obter medidas de acurária a partir dos dados de projeção e teste
+    """
+    forecast.reset_index(drop = True, inplace = True)
+    test.reset_index(drop = True, inplace = True)
+    if isinstance(forecast, pd.Series) and isinstance(test, pd.Series):
+        errors = [(test.iloc[i] - forecast.iloc[i])**2 for i in range(len(test))]
+    else:
+        errors = [(test.iloc[i][0] - forecast.iloc[i])**2 for i in range(len(test))]
+    mae = mean_absolute_error(test, forecast)
+    mse = mean_squared_error(test, forecast)
+    rmse = np.sqrt(mse)
+    mape = mean_absolute_percentage_error(test, forecast)
+    # smape
+    a = np.reshape(test.values, (-1,))
+    b = np.reshape(forecast.values, (-1,))
+    smape = np.mean(100*2.0 * np.abs(a - b) / (np.abs(a) + np.abs(b))).item()
+    # dicionário com as medidas de erro
+    measures = { "erro": sum(errors),
+                 "mae": mae,
+                 "mse": mse,
+                 "rmse": rmse,
+                 "mape": mape,
+                 "smape": smape
+                }
+    # arredondamento
+    for key, item in measures.items():
+        measures[key] = round(measures[key], 2)
+    return measures
