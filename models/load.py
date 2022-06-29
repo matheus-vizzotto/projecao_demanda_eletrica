@@ -72,7 +72,7 @@ def get_measures(forecast, test):
                 }
     # arredondamento
     for key, item in measures.items():
-        measures[key] = round(measures[key], 2)
+        measures[key] = round(measures[key], 4)
     return measures
 
 def series_to_supervised(data, n_in = 1, n_out = 1, dropnan = True):
