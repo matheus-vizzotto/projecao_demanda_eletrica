@@ -9,7 +9,9 @@ import pandas as pd
 #import numpy as np
 from load import load_data
 from load import train_test_split
-from scipy.special import boxcox, inv_boxcox
+#from scipy.special import boxcox, inv_boxcox
+from scipy.stats import boxcox
+from scipy.special import inv_boxcox
 import pmdarima as pm
 from load import get_measures
 import matplotlib.pyplot as plt
@@ -23,7 +25,10 @@ plt.style.use('fivethirtyeight')
 # carrega dados
 df = load_data()
 df["load_mwmed"].interpolate(method = "linear", inplace = True)  # preenche valores vazios
-df = boxcox(df, 2.5)
+#df = boxcox(df, 2.5)
+bc = boxcox(df)
+df = bc[0]
+lambda_ = bc[1]
 
 # split treino-teste
 n_test = 31
@@ -64,14 +69,15 @@ fc = pd.Series(SARIMA_model.predict(n_periods=n_test)) # transforma forecast em 
 fc.index = test.index # deixa o forecast e o teste com os mesmo índices para plotar
 
 # medidas de acurácia
-fc = inv_boxcox(fc, 2.5) # volta a escala para o original
+#fc = inv_boxcox(fc, 2.5) # volta a escala para o original
+fc = inv_boxcox(fc, lambda_)
 test = inv_boxcox(test, 2.5)
 medidas_fc = get_measures(fc, test) 
 df_medidas_fc = pd.DataFrame([medidas_fc])
 print(df_medidas_fc)
 
 # write forecst csv
-fc.to_csv("validation/auto_arima_fc.csv")
+#fc.to_csv("validation/auto_arima_fc.csv")
 
 # visualização do forecast
 plt.figure(figsize = (15, 5))
