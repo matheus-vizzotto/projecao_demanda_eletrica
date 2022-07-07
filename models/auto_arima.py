@@ -92,7 +92,7 @@ plt.legend()
 plt.show()
 
 # write forecst csv
-load_fc.index.names = ["date"]
-load_fc.index = test.index 
-load_fc.columns = ["forecast"]
-load_fc.to_csv("validation/auto_arima_fc.csv")
+#load_fc.index.names = ["date"]
+#load_fc.index = test.index 
+#load_fc.columns = ["forecast"]
+#load_fc.to_csv("validation/auto_arima_fc.csv")
