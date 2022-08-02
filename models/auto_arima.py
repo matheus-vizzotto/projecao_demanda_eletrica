@@ -30,10 +30,11 @@ df["load_mwmed"].interpolate(method = "linear", inplace = True)  # preenche valo
 #df.load_mwmed = bc[0]
 #lambda_ = bc[1]
 df.load_mwmed = np.log(df.load_mwmed) # série logaritmizada
+df.plot()
 
 
 # split treino-teste
-n_test = 31
+n_test = 168
 train, test = train_test_split(df, n_test)
 
 
@@ -50,11 +51,11 @@ SARIMA_model = pm.auto_arima(train,
                             #D=None# let model determine 'd'
                             max_D = 2,
                             seasonal=True, 
-                            m=7, # frequency of series (if m=1, seasonal is set to FALSE automatically)
+                            m=24, # frequency of series (if m=1, seasonal is set to FALSE automatically)
                             trace=True, #logs 
                             error_action='warn', #shows errors ('ignore' silences these)
                             suppress_warnings=True,
-                            stepwise=False,
+                            stepwise=True,
                             information_criterion='bic')
 
 #model1 = sm.tsa.statespace.SARIMAX(train,order=(1, 1, 2),seasonal_order=(1,0,1,7), trend='c')
