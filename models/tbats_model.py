@@ -44,5 +44,5 @@ y_pred = pd.Series(y_pred)
 y_pred.index.names = ["date"]
 y_pred.index = test.index 
 y_pred.columns = ["forecast"]
-y_pred.to_csv("validation/ets_fc.csv")
+y_pred.to_csv("validation/tbats_fc.csv")
 
