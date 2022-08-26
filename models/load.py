@@ -6,6 +6,7 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.metrics import r2_score
 from math import sqrt
 
 
@@ -62,13 +63,15 @@ def get_measures(forecast, test):
     a = np.reshape(test.values, (-1,))
     b = np.reshape(forecast.values, (-1,))
     smape = np.mean(100*2.0 * np.abs(a - b) / (np.abs(a) + np.abs(b))).item()
+    r2 = r2_score(test, forecast)
     # dicionário com as medidas de erro
     measures = { "erro": sum(errors),
                  "mae": mae,
                  "mse": mse,
                  "rmse": rmse,
                  "mape": mape,
-                 "smape": smape
+                 "smape": smape,
+                 "r2": r2
                 }
     # arredondamento
     for key, item in measures.items():
