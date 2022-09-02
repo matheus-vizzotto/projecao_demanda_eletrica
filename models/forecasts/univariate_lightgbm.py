@@ -90,7 +90,7 @@ df.interpolate(method = "linear", inplace = True)
 values = df.values.tolist()
 
 lags = 60
-h = 10
+h = 15
 pred, measures, test = multi_step_forecast(values, lags, h)
 print(measures)
 

@@ -91,8 +91,7 @@ df_weather = pd.read_csv("../../data/weather_daily_data.csv", parse_dates=["DATA
 df_weather = df_weather[df_weather.DATA.isin(df_load.index)]
 df_load = df_load[df_weather.DATA.min():df_weather.DATA.max()] 
 
-print(df_weather.shape)
-print(df_load.shape)
+
 
 df_load_2 = df_load.reset_index()
 df_merged = pd.merge(df_weather, df_load_2, left_on = "DATA", right_on = "date", how = "outer")
@@ -121,7 +120,7 @@ for col in df_weather.columns:
 df_weather_load = pd.concat([data2, data1], axis = 1)
 
 lags = 60
-h = 10
+h = 15
 pred, measures = multi_step_forecast(df_weather_load.values, lags, h)
 
 pred = pd.DataFrame(pred, columns = ["forecast"], index = df_merged.iloc[-h:].index)
