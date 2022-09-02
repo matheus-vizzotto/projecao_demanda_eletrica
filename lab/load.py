@@ -104,7 +104,7 @@ def get_measures(forecast, test):
                 }
     # arredondamento
     for key, item in measures.items():
-        measures[key] = round(measures[key], 2)
+        measures[key] = round(measures[key], 6)
     return measures
 
 

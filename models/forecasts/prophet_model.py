@@ -36,11 +36,12 @@ def create_future(start, t, cal_vars = False):
     return df
 
 df = load_data()
-train, test = train_test_split(df, 31)
+n_test = 10
+train, test = train_test_split(df, n_test)
 train.reset_index(inplace = True)
 train.columns = ['ds', 'y']  # IMPORTANTE: RENOMEAR COLUNA DE DATA E DE OBSERVAÇÕES PARA O PROPHET
 
-model = fbprophet.Prophet()
+model = fbprophet.Prophet(daily_seasonality=True)
 model.fit(train)
 
 future = create_future(test.index[0], len(test))    # cria dataframe de datas futuras
@@ -52,7 +53,7 @@ plt.figure(figsize=(20,5))
 plt.plot(forecast.ds, forecast.yhat, label = "forecast")    # forecast.ds = data no eixo x; forecast.yhat = forecast no eixo y
 plt.plot(test.load_mwmed, label = "observed")   # test já tem data como índice, então não precisa especificar o eixo x
 plt.legend()
-plt.title("Validação")
+plt.title(f"Prophet forecast (h={n_test})")
 plt.show()
 
 measures = get_measures(forecast.yhat, test)

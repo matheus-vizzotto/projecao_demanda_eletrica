@@ -25,12 +25,12 @@ df.load_mwmed = np.log(df.load_mwmed) # log-transform
 df.plot(title = "Série transformada")
 
 # split train - test
-n_test = 31
+n_test = 10
 train, test = train_test_split(df, n_test)
 
 # fit model
 model1 = sm.tsa.statespace.SARIMAX(train,order=(1, 1, 2),seasonal_order=(1,0,1,7), trend='c')
-SARIMA_model = model1.fit()
+SARIMA_model = model1.fit() #method='cg'
 
 # parameters
 print(SARIMA_model.summary())

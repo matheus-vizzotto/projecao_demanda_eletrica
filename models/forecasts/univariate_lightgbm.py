@@ -79,11 +79,11 @@ def multi_step_forecast(data, lag, n):
         model.fit(data_X, data_y)
         testX, testy = test.reset_index(drop=True).loc[0, :"var1(t-1)"], test.reset_index(drop=True).loc[0, response]
         pred = model.predict([testX])[0]
-        print(f"Predicting {response}\n  > expected: {testy}, predicted: {pred}")
+        print(f"Predicting {response}\n    > expected: {testy}, predicted: {pred}")
         predictions.append(pred)
     measures = get_measures(pd.Series(predictions), test["var1(t)"])
     df_measures = pd.DataFrame([measures])
-    return predictions, df_measures
+    return predictions, df_measures, test
 
 df = load_data()
 df.interpolate(method = "linear", inplace = True)
@@ -91,7 +91,14 @@ values = df.values.tolist()
 
 lags = 60
 h = 10
-pred, measures = multi_step_forecast(values, lags, h)
+pred, measures, test = multi_step_forecast(values, lags, h)
+print(measures)
+
+plt.figure()
+plt.plot(test["var1(t)"].reset_index(drop = True), label = "test")
+plt.plot(pred, label = "forecast")
+plt.legend()
+plt.show()
 
 pred = pd.DataFrame(pred, columns = ["forecast"], index = df.iloc[-h:].index)
 pred.to_csv("validation/univariate_lightgbm_fc.csv")

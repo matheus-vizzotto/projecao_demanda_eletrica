@@ -16,7 +16,7 @@ df = load_data()
 df["load_mwmed"].interpolate(method = "linear", inplace = True)
 
 
-n_test = 31
+n_test = 10
 train, test = train_test_split(df, n_test)
 
 forecaster = TBATS(  
@@ -27,7 +27,7 @@ forecaster = TBATS(
     use_arma_errors=True)
 forecaster.fit(train.load_mwmed.values)
 
-y_pred = forecaster.predict(fh=[x for x in range(0, 31)])
+y_pred = forecaster.predict(fh=[x for x in range(0, n_test)])
 y_pred = [x for x in y_pred.flatten()]
 
 medidas_fc = get_measures(pd.Series(y_pred), test.load_mwmed) 
@@ -37,6 +37,7 @@ print(df_medidas_fc)
 
 plt.plot(y_pred, label = "forecast")
 plt.plot(test.load_mwmed.reset_index(drop = True), label = "test")
+plt.title(f"TBATS forecast (h={n_test})")
 plt.legend()
 plt.show()
 
