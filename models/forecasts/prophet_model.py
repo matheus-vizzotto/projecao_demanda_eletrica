@@ -36,7 +36,9 @@ def create_future(start, t, cal_vars = False):
     return df
 
 df = load_data()
-n_test = 10
+
+n_test = 15
+
 train, test = train_test_split(df, n_test)
 train.reset_index(inplace = True)
 train.columns = ['ds', 'y']  # IMPORTANTE: RENOMEAR COLUNA DE DATA E DE OBSERVAÇÕES PARA O PROPHET
