@@ -27,6 +27,9 @@ plt.plot(test.load_mwmed.reset_index(drop = True), label = "test")
 plt.legend()
 plt.show()
 
+medidas_fc = get_measures(y_hat, test.load_mwmed) 
+df_medidas_fc = pd.DataFrame([medidas_fc])
+print(df_medidas_fc)
 
 y_hat.index.names = ["date"]
 y_hat.index = test.index 
