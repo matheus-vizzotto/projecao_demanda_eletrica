@@ -16,7 +16,7 @@ df = load_data()
 df["load_mwmed"].interpolate(method = "linear", inplace = True)
 
 
-n_test = 10
+n_test = 15
 train, test = train_test_split(df, n_test)
 
 forecaster = TBATS(  

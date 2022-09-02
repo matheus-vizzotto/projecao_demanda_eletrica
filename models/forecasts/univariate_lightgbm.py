@@ -21,7 +21,6 @@ import lightgbm as lgb
 
 import warnings
 warnings.filterwarnings("ignore")
-
 rcParams['figure.figsize'] = 15, 5 # tamanho das figuras
 
 def lightgbm_forecast(train, testX):
