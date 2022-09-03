@@ -29,10 +29,6 @@ def create_future(start, t, cal_vars = False):
        t: períodos à frente """
     dates = pd.date_range(start, freq = 'd', periods = t)
     df = pd.DataFrame(dates, columns = ['t'])
-    if cal_vars == True:
-        df = create_features(df, 't')
-    elif cal_vars == False:
-        pass
     return df
 
 df = load_data()
@@ -44,11 +40,31 @@ train.reset_index(inplace = True)
 train.columns = ['ds', 'y']  # IMPORTANTE: RENOMEAR COLUNA DE DATA E DE OBSERVAÇÕES PARA O PROPHET
 
 predictions = list()
-history = [x for x in train.load_mwmed]
+history = train.copy(deep=True)
 for i in range(len(test)):
-    model = fbprophet.Prophet(daily_seasonality=True)
+    model = fbprophet.Prophet() # daily_seasonality=True
     model.fit(history)
-    load_fc = SARIMA_model.forecast(1)[0]
+    future = create_future(test.index[i], 1)    # cria dataframe de datas futuras
+    future.columns = ['ds']
+    forecast = model.predict(future)
+    load_fc = forecast.yhat[0]
     predictions.append(load_fc)
-    history.append(test.load_mwmed[i])
+    new_line = forecast[["ds", "yhat"]]
+    history = pd.concat([history, new_line], axis = 0)
     print(f'>expected = {test.load_mwmed[i]}, predicted = {load_fc}')
+    
+    
+plt.figure()
+plt.plot(test.load_mwmed.reset_index(drop=True))
+plt.plot(predictions)
+plt.show()
+
+measures = get_measures(pd.Series(predictions), test.load_mwmed)
+df_measures = pd.DataFrame([measures])
+print(df_measures)
+
+y_hat = pd.Series(predictions)
+y_hat.index.names = ["date"]
+y_hat.index = test.index 
+y_hat.columns = ["forecast"]
+y_hat.to_csv("validation/prophet_fc.csv")

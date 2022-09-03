@@ -45,6 +45,15 @@ def load_data():
     df_load4 = df_load3[["date", "load_mwmed"]].set_index("date")
     return df_load4
 
+def check_date_range(date_range):
+    freq = date_range[1] - date_range[0]
+    for i, x in enumerate(date_range):
+        if i <= (len(date_range) - 2):
+            if (date_range[i+1] - date_range[i]) != freq:
+                print(f"Data faltante entre {date_range[i]} e {date_range[i+1]}.")
+        else:
+            continue
+
 def get_measures(forecast, test):
     """
     Função para obter medidas de acurária a partir dos dados de projeção e teste
@@ -144,3 +153,5 @@ def create_future(start, t, cal_vars = False):
     elif cal_vars == False:
         pass
     return df
+
+

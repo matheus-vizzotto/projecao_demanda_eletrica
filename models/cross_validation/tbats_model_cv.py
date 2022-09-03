@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Sep  3 08:24:32 2022
-
 @author: Matheus
 """
 
