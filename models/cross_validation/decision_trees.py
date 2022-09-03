@@ -73,7 +73,7 @@ lag = 60
 data = series_to_supervised(values, n_in = lag)
 
 # evaluate
-n_test = 31
+n_test = 15
 mae, mape, rmse, y, yhat = walk_forward_validation(data.values, n_test)
 print('MAE: %.3f' % mae)
 print('MAPE: %.3f' % mape)

@@ -61,14 +61,12 @@ def walk_forward_validation(data, n_test):
 
 
 df_load = load_data()
-df_weather = pd.read_csv("../data/weather_daily_data.csv", parse_dates=["DATA"])
+df_weather = pd.read_csv("../../data/weather_daily_data.csv", parse_dates=["DATA"])
 
 # gets the same period for both dataframes
 df_weather = df_weather[df_weather.DATA.isin(df_load.index)]
 df_load = df_load[df_weather.DATA.min():df_weather.DATA.max()] 
 
-print(df_weather.shape)
-print(df_load.shape)
 
 df_load_2 = df_load.reset_index()
 df_merged = pd.merge(df_weather, df_load_2, left_on = "DATA", right_on = "date", how = "outer")
@@ -96,7 +94,7 @@ for col in df_weather.columns:
         
 df_weather_load = pd.concat([data2, data1], axis = 1)
 
-n_test = 31
+n_test = 15
 mae, mape, rmse, y, yhat = walk_forward_validation(df_weather_load.values, n_test)
 
 # plot expected vs predicted

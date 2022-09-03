@@ -38,7 +38,7 @@ def load_data():
     """
     Função para ler e transformar os dados já presentes no diretório especificado
     """
-    path = "../data/daily_load.csv"
+    path = "../../data/daily_load.csv"
     df_load = pd.read_csv(path, parse_dates = ["date"])
     df_load2 = df_load[df_load["id_reg"] == "S"]           # região sul
     df_load3 = df_load2[df_load2["date"] <= '2022-05-31']  # data de corte

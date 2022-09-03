@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Sep  2 22:24:21 2022
+
+@author: Matheus
+"""
+
+
 import pandas as pd
 import numpy as np
 from load import load_data
@@ -8,59 +16,42 @@ from matplotlib import rcParams
 import seaborn as sns
 import statsmodels.api as sm
 import warnings 
-
 # configs
 warnings.filterwarnings('ignore') # remove warnings
 plt.style.use('fivethirtyeight')
 rcParams['figure.figsize'] = 15, 5
 
-# load data
-df = load_data()
-sns.heatmap(df.isna().transpose()) # missing values
 
-# visualize data
-df.plot(title = "Série em nível")
-df["load_mwmed"].interpolate(method = "linear", inplace = True)  # fill empty values
-df.load_mwmed = np.log(df.load_mwmed) # log-transform
-df.plot(title = "Série transformada")
+df = load_data()
+df["load_mwmed"].interpolate(method = "linear", inplace = True) 
 
 # split train - test
-n_test = 31
+n_test = 15
 train, test = train_test_split(df, n_test)
 
-# fit model
-model1 = sm.tsa.statespace.SARIMAX(train,order=(1, 1, 2),seasonal_order=(1,0,1,7), trend='c')
-SARIMA_model = model1.fit()
-
-# parameters
-print(SARIMA_model.summary())
-
-# residuals diagnostics
-SARIMA_model.plot_diagnostics(figsize=(15,5))
-plt.subplots_adjust(hspace= 0.7)
+predictions = list()
+train, test = train_test_split(df, n_test)
+history = [x for x in train.load_mwmed]
+for i in range(len(test)):
+    model = sm.tsa.statespace.SARIMAX(history,order=(1, 1, 2),seasonal_order=(1,0,1,7), trend='c')
+    SARIMA_model = model.fit(method = "cg")
+    load_fc = SARIMA_model.forecast(1)[0]
+    predictions.append(load_fc)
+    history.append(test.load_mwmed[i])
+    print(f'>expected = {test.load_mwmed[i]}, predicted = {load_fc}')
+    
+    
+plt.figure()
+plt.plot(test.load_mwmed.reset_index(drop=True))
+plt.plot(predictions)
 plt.show()
 
-# forecast
-load_fc = SARIMA_model.forecast(n_test)
-load_fc.index = test.index # deixa o forecast e o teste com os mesmo índices para plotar
+measures = get_measures(pd.Series(predictions), test.load_mwmed)
+df_measures = pd.DataFrame([measures])
+print(df_measures)
 
-
-# model's accuracy
-load_fc = np.exp(load_fc) 
-load_test = np.exp(test)
-medidas_fc = get_measures(load_fc, load_test) 
-df_medidas_fc = pd.DataFrame([medidas_fc])
-print(df_medidas_fc)
-
-# visualização do forecast
-plt.figure(figsize = (15, 5))
-plt.plot(load_fc.values, c = "red", label = "forecast")
-plt.plot(load_test.values, c = "blue", label = "actual")
-plt.legend()
-plt.show()
-
-# write forecst csv
-load_fc.index.names = ["date"]
-load_fc.index = test.index 
-load_fc.columns = ["forecast"]
-load_fc.to_csv("validation/arima_fc.csv")
+y_hat = pd.Series(predictions)
+y_hat.index.names = ["date"]
+y_hat.index = test.index 
+y_hat.columns = ["forecast"]
+y_hat.to_csv("validation/arima_fc.csv")
