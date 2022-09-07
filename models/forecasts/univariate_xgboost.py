@@ -17,7 +17,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
 from load import get_measures
-import lightgbm as lgb
+import xgboost as xgb
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -73,8 +73,8 @@ def multi_step_forecast(data, lag, n):
         data_ = train[cols]
         nrows = data_.shape[0]
         data_ = data_.iloc[:nrows-h, :] 
-        data_X, data_y = data_.iloc[:, :-1], data_.iloc[:, -1]
-        model = lgb.LGBMRegressor(objective='regression', n_estimators=1000)
+        data_X, data_y = data_.iloc[:, :-1].to_numpy(), data_.iloc[:, -1].to_numpy()
+        model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=1000)
         model.fit(data_X, data_y)
         testX, testy = test.reset_index(drop=True).loc[0, :"var1(t-1)"], test.reset_index(drop=True).loc[0, response]
         pred = model.predict([testX])[0]
@@ -100,6 +100,6 @@ plt.legend()
 plt.show()
 
 pred = pd.DataFrame(pred, columns = ["forecast"], index = df.iloc[-h:].index)
-#pred.to_csv("validation/univariate_lightgbm_fc.csv")
+pred.to_csv("validation/univariate_xgboost_fc.csv")
 
 
