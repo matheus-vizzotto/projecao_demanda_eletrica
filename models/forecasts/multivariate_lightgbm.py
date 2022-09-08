@@ -41,6 +41,7 @@ def multi_step_forecast(data, n):
         model = lgb.LGBMRegressor(objective='regression', n_estimators=1000)
         model.fit(data_X, data_y)
         testX, testy = test.reset_index(drop=True).loc[0, :"var1(t-1)"], test.reset_index(drop=True).loc[0, response]
+        print(testX)
         pred = model.predict([testX])[0]
         print(f"Predicting {response}\n  > expected: {testy}, predicted: {pred}")
         predictions.append(pred)
@@ -63,14 +64,19 @@ df_merged.dropna(how = "all", inplace = True)
 df_merged.sort_values(by = "DATA", inplace = True)
 df_merged.load_mwmed = df_merged.load_mwmed.interpolate(method="linear")
 
-df_load_3 = df_merged.load_mwmed
-values = df_load_3.values.tolist()
 
 lag = 15    # lags das variáveis climáticas e de carga que serão utilizadas
 n_test = outs = 15 # horizonte de previsão e teste (= número de modelos)
 
+df_load_3 = df_merged.load_mwmed
+df_load_3.index = df_merged.DATA
+df_load_3 = df_load_3["2008-01-01":] # TESTE: MAPE PASSOU DE 3,2 PARA 3,0
+values = df_load_3.values.tolist()
 data1 = series_to_supervised(values, n_in = lag, n_out=outs, dropnan=False)
+
 data2 = pd.DataFrame()
+df_weather.set_index("DATA", inplace=True) # TESTE: MAPE PASSOU DE 3,2 PARA 3,0
+df_weather = df_weather["2008-01-01":] # TESTE: MAPE PASSOU DE 3,2 PARA 3,0
 for col in df_weather.columns:
     if col == "DATA":
         continue
@@ -88,6 +94,6 @@ pred, measures, test = multi_step_forecast(df_weather_load, outs)
 print(measures)
 
 pred = pd.DataFrame(pred, columns = ["forecast"], index = df_load.iloc[-n_test:].index)
-pred.to_csv("validation/multivariate_lightgbm_fc.csv")
+#pred.to_csv("validation/multivariate_lightgbm_fc.csv")
 
 
