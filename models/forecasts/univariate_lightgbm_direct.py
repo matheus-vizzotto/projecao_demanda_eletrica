@@ -100,6 +100,6 @@ plt.legend()
 plt.show()
 
 pred = pd.DataFrame(pred, columns = ["forecast"], index = df.iloc[-h:].index)
-#pred.to_csv("validation/univariate_lightgbm_fc.csv")
+pred.to_csv("validation/univariate_lightgbm_dir_fc.csv")
 
 
