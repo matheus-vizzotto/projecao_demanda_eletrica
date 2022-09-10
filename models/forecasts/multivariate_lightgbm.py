@@ -32,7 +32,7 @@ def multi_step_forecast(data, n):
     response_vars = data.columns[-(outs):]
     predictions = list()
     for h, response in enumerate(response_vars):
-        cols = [x for x in df_weather_load.columns[:df_weather_load.shape[1] - outs]]
+        cols = [x for x in data.columns[:data.shape[1] - outs]]
         cols.append(response)
         data_ = train[cols]
         nrows = data_.shape[0]
@@ -41,7 +41,6 @@ def multi_step_forecast(data, n):
         model = lgb.LGBMRegressor(objective='regression', n_estimators=1000)
         model.fit(data_X, data_y)
         testX, testy = test.reset_index(drop=True).loc[0, :"var1(t-1)"], test.reset_index(drop=True).loc[0, response]
-        print(testX)
         pred = model.predict([testX])[0]
         print(f"Predicting {response}\n  > expected: {testy}, predicted: {pred}")
         predictions.append(pred)
