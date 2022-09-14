@@ -19,7 +19,7 @@ df["load_mwmed"].interpolate(method = "linear", inplace = True)
 n_test = 15
 train, test = train_test_split(df, n_test)
 
-fit1 = ExponentialSmoothing(train ,seasonal_periods=7,trend='add', seasonal='add',).fit()
+fit1 = ExponentialSmoothing(train ,seasonal_periods=7,trend='add', seasonal='add').fit() # seasonal='mul' é melhor
 y_hat = fit1.forecast(n_test)
 
 plt.plot(y_hat.reset_index(drop = True), label = "forecast")
