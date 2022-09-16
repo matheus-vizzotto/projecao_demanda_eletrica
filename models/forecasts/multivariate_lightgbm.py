@@ -35,6 +35,7 @@ def multi_step_forecast(data, n):
         cols = [x for x in data.columns[:data.shape[1] - outs]]
         cols.append(response)
         data_ = train[cols]
+        print(data_.columns)
         nrows = data_.shape[0]
         data_ = data_.iloc[:nrows-h, :] 
         data_X, data_y = data_.iloc[:, :-1], data_.iloc[:, -1]
