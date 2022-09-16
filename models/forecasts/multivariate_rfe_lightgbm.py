@@ -16,6 +16,7 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.feature_selection import RFE
 from load import get_measures
 import lightgbm as lgb
 
@@ -31,6 +32,7 @@ def multi_step_forecast(data, n):
     train.dropna(inplace = True)
     response_vars = data.columns[-(outs):]
     predictions = list()
+    h_var = dict()
     for h, response in enumerate(response_vars):
         cols = [x for x in data.columns[:data.shape[1] - outs]]
         cols.append(response)
@@ -38,15 +40,19 @@ def multi_step_forecast(data, n):
         nrows = data_.shape[0]
         data_ = data_.iloc[:nrows-h, :] 
         data_X, data_y = data_.iloc[:, :-1], data_.iloc[:, -1]
-        model = lgb.LGBMRegressor(objective='regression', n_estimators=1000)
-        model.fit(data_X, data_y)
+        estimator = lgb.LGBMRegressor(objective='regression', n_estimators=1000)
+        selector = RFE(estimator, n_features_to_select=20, step=1)
+        print(f"selecting features...")
+        selector = selector.fit(data_X, data_y)
+        selected_vars = [x for x in data_X.columns[selector.support_]] 
+        h_var[f"h_{h}"] = selected_vars
         testX, testy = test.reset_index(drop=True).loc[0, :"var1(t-1)"], test.reset_index(drop=True).loc[0, response]
-        pred = model.predict([testX])[0]
+        pred = selector.predict([testX])[0]
         print(f"Predicting {response}\n  > expected: {testy}, predicted: {pred}")
         predictions.append(pred)
     measures = get_measures(pd.Series(predictions), test["var1(t)"])
     df_measures = pd.DataFrame([measures])
-    return predictions, df_measures, test
+    return predictions, df_measures, test, h_var
 
 df_load = load_data()
 df_weather = pd.read_csv("../../data/weather_daily_data.csv", parse_dates=["DATA"])
@@ -89,10 +95,12 @@ for col in df_weather.columns:
 df_weather_load = pd.concat([data2, data1], axis = 1)
 
 
-pred, measures, test = multi_step_forecast(df_weather_load, outs)
+pred, measures, test, h_var = multi_step_forecast(df_weather_load, outs)
 print(measures)
 
 pred = pd.DataFrame(pred, columns = ["forecast"], index = df_load.iloc[-n_test:].index)
-#pred.to_csv("validation/multivariate_lightgbm_fc.csv")
+pred.to_csv("validation/multivariate_rfe_lightgbm_fc.csv")
+with open('validation/selected_vars.json', 'w') as f:
+    json.dump(h_var, f)
 
 
