@@ -17,6 +17,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.feature_selection import RFE
+from sklearn.feature_selection import RFECV
 from load import get_measures
 import json
 import lightgbm as lgb
@@ -42,7 +43,8 @@ def multi_step_forecast(data, n):
         data_ = data_.iloc[:nrows-h, :] 
         data_X, data_y = data_.iloc[:, :-1], data_.iloc[:, -1]
         estimator = lgb.LGBMRegressor(objective='regression', n_estimators=1000)
-        selector = RFE(estimator, n_features_to_select=20, step=1)
+        #selector = RFE(estimator, n_features_to_select=20, step=1)
+        selector = RFECV(estimator, step=1, cv=5)
         print(f"selecting features...")
         selector = selector.fit(data_X, data_y)
         selected_vars = [x for x in data_X.columns[selector.support_]] 
