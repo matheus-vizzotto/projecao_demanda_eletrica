@@ -36,6 +36,7 @@ def create_future(start, t, cal_vars = False):
     return df
 
 df = load_data()
+df.load_mwmed = df.load_mwmed.interpolate(method="linear")
 
 n_test = 15
 
@@ -64,4 +65,4 @@ print(df_measures)
 
 fc = pd.DataFrame(list(zip(forecast.ds, forecast.yhat)), columns = ["date", "forecast"])
 fc.set_index("date", inplace = True)
-fc.to_csv("validation/prophet_fc.csv")
+#fc.to_csv("validation/prophet_fc.csv")
