@@ -28,7 +28,7 @@ for fold in range(folds,0,-1):
     #slide = rows-(fold*horz)#-1
     slide = rows-((fold-1)*horz)
     df_cv = df.iloc[:slide]
-    train, test = train_test_split(df, n_test)
+    train, test = train_test_split(df_cv, n_test)
     train.columns = ['ds', 'y']
     m = fbprophet.Prophet(daily_seasonality=True)
     model = m.fit(train)
