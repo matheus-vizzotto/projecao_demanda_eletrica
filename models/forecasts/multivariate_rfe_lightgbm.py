@@ -102,7 +102,7 @@ pred, measures, test, h_var = multi_step_forecast(df_weather_load, outs)
 print(measures)
 
 pred = pd.DataFrame(pred, columns = ["forecast"], index = df_load.iloc[-n_test:].index)
-pred.to_csv("validation/multivariate_rfe_lightgbm16_fc.csv")
+pred.to_csv("validation/multivariate_rfe_lightgbm_fc.csv")
 with open('validation/selected_vars.json', 'w') as f:
     json.dump(h_var, f)
 
