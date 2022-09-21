@@ -65,4 +65,4 @@ print(df_measures)
 
 fc = pd.DataFrame(list(zip(forecast.ds, forecast.yhat)), columns = ["date", "forecast"])
 fc.set_index("date", inplace = True)
-#fc.to_csv("validation/prophet_fc.csv")
+fc.to_csv("validation/prophet_fc.csv")
