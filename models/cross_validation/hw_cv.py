@@ -29,7 +29,7 @@ for fold in range(folds,0,-1):
     df_cv = df.iloc[:slide]
     n_test = 15
     train, test = train_test_split(df_cv, n_test)
-    fit1 = ExponentialSmoothing(train ,seasonal_periods=7,trend='add', seasonal='add').fit() # seasonal='mul' é melhor
+    fit1 = ExponentialSmoothing(train ,seasonal_periods=7,trend='add', seasonal='mul').fit() # seasonal='mul' é melhor
     y_hat = fit1.forecast(n_test)
     out[f"cv_{fold}"]["pred"] = y_hat.to_list()
     out[f"cv_{fold}"]["test"] = test["load_mwmed"].to_list()
