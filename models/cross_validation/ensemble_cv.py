@@ -36,11 +36,12 @@ for cv in cvs:
     test = hw_dict[cv]["test"]
     lz = list(zip(hw_pred, prophet_pred))
     ensemble = [np.mean(x) for x in lz]
-    ensemble_dict[f"cv_{cv}"]["pred"] = ensemble
-    ensemble_dict[f"cv_{cv}"]["test"] = test
+    ensemble_dict[f"{cv}"]["pred"] = ensemble
+    ensemble_dict[f"{cv}"]["test"] = test
     ensemble_s = pd.Series(ensemble)
     l = pd.concat([l, ensemble_s], axis = 0)
 d = dict(ensemble_dict)
+print(d)
 
 with open('validation/ensemble_cv.json', 'w') as f:
     json.dump(d, f)
