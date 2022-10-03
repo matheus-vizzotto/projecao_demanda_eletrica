@@ -8,3 +8,5 @@ Repositório do TCC para projetar a demanda elétrica de curto prazo na região 
 * [Modelos utilizados](https://github.com/matheus-vizzotto/projecao_demanda_eletrica/tree/main/models/forecasts)
 * [Comparação de resultados](https://github.com/matheus-vizzotto/projecao_demanda_eletrica/blob/main/models/forecasts/compare_fcs.ipynb)
 * O diretório [lab](https://github.com/matheus-vizzotto/projecao_demanda_eletrica/tree/main/lab) contém o código dos modelos utilizados em produção, mas em formato Jupyter Notebook, para facilitar a visualização.
+
+* A apresentação do trabalho também se encontra em formato [PPT](https://docs.google.com/presentation/d/1q7WB4qba9i__uf1zBRZLcRWGmj5rYZ49zIcowuaBX8c/edit?usp=sharing)
